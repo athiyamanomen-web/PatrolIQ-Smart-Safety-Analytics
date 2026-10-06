@@ -115,7 +115,7 @@ filter_keys = [
 
 if st.sidebar.button(
     "🔄 Reset All Filters",
-    use_container_width=True
+    width="stretch"
 ):
 
     for key in filter_keys:
@@ -501,7 +501,7 @@ st.divider()
 # ============================================================
 
 max_map_sample = min(
-    50000,
+    20000,
     len(filtered_df)
 )
 
@@ -509,7 +509,7 @@ max_map_sample = min(
 if max_map_sample >= 5000:
 
     default_map_sample = min(
-        20000,
+        10000,
         max_map_sample
     )
 
@@ -557,7 +557,7 @@ st.subheader(
 
 heatmap_sample = filtered_df.sample(
     n=min(
-        50000,
+        15000,
         len(filtered_df)
     ),
     random_state=42
@@ -588,7 +588,7 @@ fig_heatmap.update_layout(
 
 st.plotly_chart(
     fig_heatmap,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -649,7 +649,7 @@ fig_clusters.update_layout(
 
 st.plotly_chart(
     fig_clusters,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -673,7 +673,7 @@ st.markdown(
 
 boundary_sample = filtered_df.sample(
     n=min(
-        100000,
+        20000,
         len(filtered_df)
     ),
     random_state=42
@@ -689,7 +689,7 @@ fig_boundary = go.Figure()
 
 point_sample = boundary_sample.sample(
     n=min(
-        15000,
+        5000,
         len(boundary_sample)
     ),
     random_state=42
@@ -931,7 +931,7 @@ fig_boundary.update_layout(
 
 st.plotly_chart(
     fig_boundary,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -990,7 +990,7 @@ fig_cluster_counts = px.bar(
 
 st.plotly_chart(
     fig_cluster_counts,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -1101,7 +1101,7 @@ profile_df = pd.DataFrame(
 
 st.dataframe(
     profile_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -1209,7 +1209,7 @@ if available_zones:
 
     st.plotly_chart(
         fig_zone_crimes,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -1251,7 +1251,7 @@ st.dataframe(
     filtered_df[
         available_columns
     ].head(500),
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -1265,24 +1265,24 @@ st.subheader(
 )
 
 
-export_csv = (
-    filtered_df[
-        available_columns
-    ]
-    .to_csv(
-        index=False
+st.caption(
+    "To keep the cloud app responsive, the CSV export is prepared only when requested."
+)
+
+if st.button("Prepare Geographic CSV Export"):
+    export_csv = (
+        filtered_df[available_columns]
+        .to_csv(index=False)
+        .encode("utf-8")
     )
-    .encode("utf-8")
-)
 
-
-st.download_button(
-    label="⬇️ Download Filtered Geographic Data",
-    data=export_csv,
-    file_name="patroliq_geographic_filtered.csv",
-    mime="text/csv",
-    use_container_width=False
-)
+    st.download_button(
+        label="⬇️ Download Filtered Geographic Data",
+        data=export_csv,
+        file_name="patroliq_geographic_filtered.csv",
+        mime="text/csv",
+        width="content"
+    )
 
 
 # ============================================================
