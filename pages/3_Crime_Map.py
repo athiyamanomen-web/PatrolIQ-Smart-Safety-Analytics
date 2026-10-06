@@ -564,14 +564,14 @@ heatmap_sample = filtered_df.sample(
 ).copy()
 
 
-fig_heatmap = px.density_map(
+fig_heatmap = px.density_mapbox(
     heatmap_sample,
     lat="Latitude",
     lon="Longitude",
     radius=8,
     zoom=9,
     height=650,
-    map_style="carto-darkmatter",
+    mapbox_style="carto-darkmatter",
     title="Chicago Recorded Crime Density"
 )
 
@@ -607,7 +607,7 @@ st.subheader(
 )
 
 
-fig_clusters = px.scatter_map(
+fig_clusters = px.scatter_mapbox(
     map_df,
     lat="Latitude",
     lon="Longitude",
@@ -623,7 +623,7 @@ fig_clusters = px.scatter_map(
     ],
     zoom=9,
     height=700,
-    map_style="carto-darkmatter",
+    mapbox_style="carto-darkmatter",
     opacity=0.55,
     title="PatrolIQ K-Means Geographic Zones — K = 9"
 )
