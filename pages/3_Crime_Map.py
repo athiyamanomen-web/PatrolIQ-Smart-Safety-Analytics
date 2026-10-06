@@ -550,51 +550,101 @@ map_df["Geographic Zone"] = (
 # 10. Geographic Crime Density Heatmap
 # ============================================================
 
-st.subheader(
-    "Crime Density Heatmap"
-)
-
+st.subheader("Crime Density Heatmap")
 
 heatmap_sample = filtered_df.sample(
-    n=min(
-        15000,
-        len(filtered_df)
-    ),
+    n=min(15000, len(filtered_df)),
     random_state=42
 ).copy()
 
-
-fig_heatmap = px.density_map(
-    heatmap_sample,
-    lat="Latitude",
-    lon="Longitude",
-    radius=8,
-    zoom=9,
-    height=650,
-    map_style="carto-darkmatter",
-    title="Chicago Recorded Crime Density"
+# Aggregate nearby crime locations into a lightweight density surface.
+# Scattermap is also used by the working boundary visualization below.
+lat_bins = np.linspace(
+    heatmap_sample["Latitude"].min(),
+    heatmap_sample["Latitude"].max(),
+    46
+)
+lon_bins = np.linspace(
+    heatmap_sample["Longitude"].min(),
+    heatmap_sample["Longitude"].max(),
+    46
 )
 
+heatmap_sample["lat_bin"] = pd.cut(
+    heatmap_sample["Latitude"],
+    bins=lat_bins,
+    labels=False,
+    include_lowest=True
+)
+heatmap_sample["lon_bin"] = pd.cut(
+    heatmap_sample["Longitude"],
+    bins=lon_bins,
+    labels=False,
+    include_lowest=True
+)
+
+density_df = (
+    heatmap_sample
+    .dropna(subset=["lat_bin", "lon_bin"])
+    .groupby(["lat_bin", "lon_bin"], observed=True)
+    .agg(
+        Latitude=("Latitude", "mean"),
+        Longitude=("Longitude", "mean"),
+        Crime_Count=("Latitude", "size")
+    )
+    .reset_index()
+)
+
+max_density = max(int(density_df["Crime_Count"].max()), 1)
+density_df["Marker_Size"] = (
+    5 + 28 * np.sqrt(density_df["Crime_Count"] / max_density)
+)
+
+fig_heatmap = go.Figure()
+
+fig_heatmap.add_trace(
+    go.Scattermap(
+        lat=density_df["Latitude"],
+        lon=density_df["Longitude"],
+        mode="markers",
+        marker={
+            "size": density_df["Marker_Size"],
+            "color": density_df["Crime_Count"],
+            "colorscale": "Hot",
+            "showscale": True,
+            "opacity": 0.72,
+            "colorbar": {"title": {"text": "Crime<br>Count"}}
+        },
+        text="Recorded crimes: " + density_df["Crime_Count"].astype(str),
+        hovertemplate=(
+            "%{text}<br>"
+            "Latitude: %{lat:.4f}<br>"
+            "Longitude: %{lon:.4f}"
+            "<extra></extra>"
+        ),
+        name="Crime density"
+    )
+)
 
 fig_heatmap.update_layout(
-    margin={
-        "r": 0,
-        "t": 45,
-        "l": 0,
-        "b": 0
-    }
+    map={
+        "style": "carto-darkmatter",
+        "zoom": 9,
+        "center": {
+            "lat": heatmap_sample["Latitude"].mean(),
+            "lon": heatmap_sample["Longitude"].mean()
+        }
+    },
+    height=650,
+    title="Chicago Recorded Crime Density",
+    margin={"r": 0, "t": 45, "l": 0, "b": 0}
 )
 
-
-st.plotly_chart(
-    fig_heatmap,
-    width="stretch"
-)
-
+st.plotly_chart(fig_heatmap, width="stretch")
 
 st.caption(
-    "Brighter areas represent higher concentrations of recorded "
-    "crime locations in the selected data."
+    "Larger and brighter markers represent higher concentrations of "
+    "recorded crime locations in the selected data."
 )
 
 
@@ -602,55 +652,74 @@ st.caption(
 # 11. K-Means Geographic Hotspot Zones
 # ============================================================
 
-st.subheader(
-    "K-Means Geographic Hotspot Zones"
-)
+st.subheader("K-Means Geographic Hotspot Zones")
 
+fig_clusters = go.Figure()
 
-fig_clusters = px.scatter_map(
-    map_df,
-    lat="Latitude",
-    lon="Longitude",
-    color="Geographic Zone",
-    hover_data=[
-        "Primary Type",
-        "Description",
-        "District",
-        "Beat",
-        "Community Area",
-        "Arrest",
-        "Domestic"
-    ],
-    zoom=9,
-    height=700,
-    map_style="carto-darkmatter",
-    opacity=0.55,
-    title="PatrolIQ K-Means Geographic Zones — K = 9"
-)
+zone_palette = [
+    "#636EFA", "#EF553B", "#00CC96", "#AB63FA", "#FFA15A",
+    "#19D3F3", "#FF6692", "#B6E880", "#FF97FF"
+]
 
+for zone_position, zone in enumerate(
+    sorted(map_df["KMeans_Cluster"].dropna().astype(int).unique())
+):
+    zone_points = map_df[
+        map_df["KMeans_Cluster"].astype(int) == zone
+    ].copy()
 
-fig_clusters.update_traces(
-    marker={
-        "size": 5
-    }
-)
+    customdata = np.column_stack([
+        zone_points["Primary Type"].astype(str),
+        zone_points["Description"].astype(str),
+        zone_points["District"].astype(str),
+        zone_points["Beat"].astype(str),
+        zone_points["Community Area"].astype(str),
+        zone_points["Arrest"].astype(str),
+        zone_points["Domestic"].astype(str)
+    ])
 
+    fig_clusters.add_trace(
+        go.Scattermap(
+            lat=zone_points["Latitude"],
+            lon=zone_points["Longitude"],
+            mode="markers",
+            marker={
+                "size": 5,
+                "color": zone_palette[zone_position % len(zone_palette)],
+                "opacity": 0.55
+            },
+            customdata=customdata,
+            hovertemplate=(
+                f"Geographic Zone {zone}<br>"
+                "Crime: %{customdata[0]}<br>"
+                "Description: %{customdata[1]}<br>"
+                "District: %{customdata[2]}<br>"
+                "Beat: %{customdata[3]}<br>"
+                "Community Area: %{customdata[4]}<br>"
+                "Arrest: %{customdata[5]}<br>"
+                "Domestic: %{customdata[6]}"
+                "<extra></extra>"
+            ),
+            name=f"Zone {zone}"
+        )
+    )
 
 fig_clusters.update_layout(
-    margin={
-        "r": 0,
-        "t": 45,
-        "l": 0,
-        "b": 0
+    map={
+        "style": "carto-darkmatter",
+        "zoom": 9,
+        "center": {
+            "lat": map_df["Latitude"].mean(),
+            "lon": map_df["Longitude"].mean()
+        }
     },
-    legend_title_text="Geographic Zone"
+    height=700,
+    title="PatrolIQ K-Means Geographic Zones — K = 9",
+    margin={"r": 0, "t": 45, "l": 0, "b": 0},
+    legend={"title": {"text": "Geographic Zone"}}
 )
 
-
-st.plotly_chart(
-    fig_clusters,
-    width="stretch"
-)
+st.plotly_chart(fig_clusters, width="stretch")
 
 
 # ============================================================
