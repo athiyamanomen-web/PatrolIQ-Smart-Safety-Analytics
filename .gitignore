@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local Streamlit
+.streamlit/secrets.toml
+
+# Local MLflow
+mlruns/
+mlflow.db
+*.db
+
+# Large local PatrolIQ datasets
+data/raw/
+data/sample/
+data/processed/chicago_crime_cleaned.csv
+data/processed/chicago_crime_featured.csv
+data/processed/chicago_crime_clustered.csv
+data/processed/chicago_crime_reduced.csv
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
