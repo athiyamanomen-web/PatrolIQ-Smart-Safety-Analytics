@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from data_loader import load_clustered_data
+
 
 # ============================================================
 # 1. Page Configuration
@@ -39,23 +41,9 @@ DATA_PATH = (
 # 3. Load Dataset
 # ============================================================
 
-HF_DATA_URL = "https://huggingface.co/datasets/AthiyamanP/PatrolIQ-Chicago-Crime-Analytics/resolve/main/chicago_crime_clustered.parquet"
-
-
-@st.cache_data(show_spinner="Loading PatrolIQ data...")
-def load_data():
-    source = DATA_PATH if DATA_PATH.exists() else HF_DATA_URL
-    data = pd.read_parquet(source, engine='pyarrow')
-
-    if "Date" in data.columns:
-        data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-
-    return data
-
-
 try:
 
-    df = load_data()
+    df = load_clustered_data()
 
 except Exception as error:
 
@@ -93,7 +81,7 @@ temporal_filter_keys = [
     "temporal_pattern", "temporal_day", "temporal_weekend",
 ]
 
-if st.sidebar.button("🔄 Reset All Filters", use_container_width=True):
+if st.sidebar.button("🔄 Reset All Filters", width="stretch"):
     for key in temporal_filter_keys:
         if key in st.session_state:
             del st.session_state[key]
@@ -137,7 +125,7 @@ selected_weekend = st.sidebar.selectbox(
     "Day Category", ["All", "Weekday", "Weekend"], key="temporal_weekend"
 )
 
-filtered_df = df.copy()
+filtered_df = df
 
 if selected_years:
     filtered_df = filtered_df[filtered_df["Year"].isin(selected_years)]
@@ -302,7 +290,7 @@ fig_hour.update_xaxes(
 
 st.plotly_chart(
     fig_hour,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -347,7 +335,7 @@ with col1:
 
     st.plotly_chart(
         fig_day,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -392,7 +380,7 @@ with col2:
 
     st.plotly_chart(
         fig_month,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -431,7 +419,7 @@ fig_heatmap = px.imshow(
 
 st.plotly_chart(
     fig_heatmap,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -468,7 +456,7 @@ with col1:
 
     st.plotly_chart(
         fig_weekend,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -511,7 +499,7 @@ with col2:
 
         st.plotly_chart(
             fig_season,
-            use_container_width=True
+            width="stretch"
         )
 
     else:
@@ -560,7 +548,7 @@ fig_cluster = px.bar(
 
 st.plotly_chart(
     fig_cluster,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -622,7 +610,7 @@ if "Weekend Share" in temporal_profiles.columns:
 
 st.dataframe(
     temporal_profiles,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -679,7 +667,7 @@ fig_crime_temporal = px.bar(
 
 st.plotly_chart(
     fig_crime_temporal,
-    use_container_width=True
+    width="stretch"
 )
 
 

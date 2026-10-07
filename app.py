@@ -8,6 +8,8 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
+from data_loader import load_clustered_data
+
 
 # ============================================================
 # 1. Page Configuration
@@ -40,23 +42,9 @@ DATA_PATH = (
 # 3. Load Dataset
 # ============================================================
 
-HF_DATA_URL = "https://huggingface.co/datasets/AthiyamanP/PatrolIQ-Chicago-Crime-Analytics/resolve/main/chicago_crime_clustered.parquet"
-
-
-@st.cache_data(show_spinner="Loading PatrolIQ data...")
-def load_data():
-    source = DATA_PATH if DATA_PATH.exists() else HF_DATA_URL
-    data = pd.read_parquet(source, engine='pyarrow')
-
-    if "Date" in data.columns:
-        data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-
-    return data
-
-
 try:
 
-    df = load_data()
+    df = load_clustered_data()
 
     required_columns = [
         "Primary Type",
@@ -215,7 +203,7 @@ available_preview_columns = [
 
 st.dataframe(
     df[available_preview_columns].head(10),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 

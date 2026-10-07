@@ -10,6 +10,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from data_loader import load_clustered_data
+
 from scipy.spatial import ConvexHull
 
 
@@ -43,23 +45,9 @@ DATA_PATH = (
 # 3. Load Dataset
 # ============================================================
 
-HF_DATA_URL = "https://huggingface.co/datasets/AthiyamanP/PatrolIQ-Chicago-Crime-Analytics/resolve/main/chicago_crime_clustered.parquet"
-
-
-@st.cache_data(show_spinner="Loading PatrolIQ data...")
-def load_data():
-    source = DATA_PATH if DATA_PATH.exists() else HF_DATA_URL
-    data = pd.read_parquet(source, engine='pyarrow')
-
-    if "Date" in data.columns:
-        data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-
-    return data
-
-
 try:
 
-    df = load_data()
+    df = load_clustered_data()
 
 except Exception as error:
 
@@ -242,7 +230,7 @@ selected_domestic = st.sidebar.multiselect(
 # 6. Apply Filters
 # ============================================================
 
-filtered_df = df.copy()
+filtered_df = df
 
 
 # ------------------------------------------------------------

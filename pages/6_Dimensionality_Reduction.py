@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from data_loader import load_reduced_data
+
 
 # ============================================================
 # 1. Page Configuration
@@ -51,9 +53,9 @@ def data_source(local_path):
 # 4. Load Data
 # ============================================================
 
-@st.cache_data(show_spinner="Loading dimensionality-reduction data...")
+@st.cache_resource(show_spinner="Loading dimensionality-reduction data...")
 def load_dimensionality_data():
-    reduced = pd.read_parquet(data_source(REDUCED_PATH), engine='pyarrow')
+    reduced = load_reduced_data()
     tsne = pd.read_csv(data_source(TSNE_PATH), low_memory=False)
     variance = pd.read_csv(data_source(VARIANCE_PATH))
     importance = pd.read_csv(data_source(IMPORTANCE_PATH))
@@ -337,7 +339,7 @@ fig_pca2.update_layout(
 
 st.plotly_chart(
     fig_pca2,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -393,7 +395,7 @@ fig_pca3.update_layout(
 
 st.plotly_chart(
     fig_pca3,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -464,14 +466,14 @@ if (
 
     st.plotly_chart(
         fig_variance,
-        use_container_width=True
+        width="stretch"
     )
 
 else:
 
     st.dataframe(
         variance_plot,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -581,14 +583,14 @@ if (
 
     st.plotly_chart(
         fig_importance,
-        use_container_width=True
+        width="stretch"
     )
 
 else:
 
     st.dataframe(
         importance_plot,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -599,7 +601,7 @@ with st.expander(
 
     st.dataframe(
         importance_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -624,7 +626,7 @@ if TSNE_X is None or TSNE_Y is None:
 
     st.dataframe(
         tsne_df.head(),
-        use_container_width=True
+        width="stretch"
     )
 
 else:
@@ -720,7 +722,7 @@ else:
 
     st.plotly_chart(
         fig_tsne,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -774,7 +776,7 @@ comparison_df = pd.DataFrame(
 
 st.dataframe(
     comparison_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -905,7 +907,7 @@ with st.expander(
 
     st.dataframe(
         methodology_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 

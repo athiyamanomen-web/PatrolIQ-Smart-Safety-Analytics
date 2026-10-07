@@ -140,7 +140,7 @@ st.header("Clustering Model Performance")
 
 st.dataframe(
     clustering_metrics,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -179,7 +179,7 @@ silhouette_fig.update_layout(
 
 st.plotly_chart(
     silhouette_fig,
-    use_container_width=True
+    width="stretch"
 )
 
 st.info(
@@ -223,7 +223,7 @@ db_fig.update_layout(
 
 st.plotly_chart(
     db_fig,
-    use_container_width=True
+    width="stretch"
 )
 
 st.caption(
@@ -361,14 +361,14 @@ if True:
 
             st.plotly_chart(
                 variance_fig,
-                use_container_width=True
+                width="stretch"
             )
 
         else:
 
             st.dataframe(
                 pca_variance,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True
             )
 
@@ -481,7 +481,7 @@ dr_comparison = pd.DataFrame(
 
 st.dataframe(
     dr_comparison,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -534,7 +534,7 @@ mlflow_runs = pd.DataFrame(
 
 st.dataframe(
     mlflow_runs,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -564,7 +564,7 @@ registered_models = pd.DataFrame(
 
 st.dataframe(
     registered_models,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -648,7 +648,7 @@ summary = pd.DataFrame(
 
 st.dataframe(
     summary,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 

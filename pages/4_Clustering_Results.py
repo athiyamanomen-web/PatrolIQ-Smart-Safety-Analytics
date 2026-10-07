@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from data_loader import load_clustered_data
+
 
 # ============================================================
 # 1. Page Configuration
@@ -39,23 +41,9 @@ DATA_PATH = (
 # 3. Load Dataset
 # ============================================================
 
-HF_DATA_URL = "https://huggingface.co/datasets/AthiyamanP/PatrolIQ-Chicago-Crime-Analytics/resolve/main/chicago_crime_clustered.parquet"
-
-
-@st.cache_data(show_spinner="Loading PatrolIQ data...")
-def load_data():
-    source = DATA_PATH if DATA_PATH.exists() else HF_DATA_URL
-    data = pd.read_parquet(source, engine='pyarrow')
-
-    if "Date" in data.columns:
-        data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-
-    return data
-
-
 try:
 
-    df = load_data()
+    df = load_clustered_data()
 
 except Exception as error:
 
@@ -221,7 +209,7 @@ comparison_df = pd.DataFrame(
 
 st.dataframe(
     comparison_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -254,7 +242,7 @@ fig_silhouette.add_hline(
 
 st.plotly_chart(
     fig_silhouette,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -292,7 +280,7 @@ fig_db.update_traces(
 
 st.plotly_chart(
     fig_db,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -358,7 +346,7 @@ fig_kmeans = px.bar(
 
 st.plotly_chart(
     fig_kmeans,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -463,7 +451,7 @@ profile_df = pd.DataFrame(
 
 st.dataframe(
     profile_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
@@ -583,7 +571,7 @@ fig_dbscan = px.bar(
 
 st.plotly_chart(
     fig_dbscan,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -665,7 +653,7 @@ with col1:
 
     st.plotly_chart(
         fig_geo,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -699,7 +687,7 @@ with col2:
 
     st.plotly_chart(
         fig_temporal,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -752,7 +740,7 @@ summary_df = pd.DataFrame(
 
 st.dataframe(
     summary_df,
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 

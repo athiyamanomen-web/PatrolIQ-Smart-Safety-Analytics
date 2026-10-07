@@ -8,6 +8,8 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from data_loader import load_clustered_data
+
 
 # ============================================================
 # 1. Page Configuration
@@ -39,23 +41,9 @@ DATA_PATH = (
 # 3. Load Dataset
 # ============================================================
 
-HF_DATA_URL = "https://huggingface.co/datasets/AthiyamanP/PatrolIQ-Chicago-Crime-Analytics/resolve/main/chicago_crime_clustered.parquet"
-
-
-@st.cache_data(show_spinner="Loading PatrolIQ data...")
-def load_data():
-    source = DATA_PATH if DATA_PATH.exists() else HF_DATA_URL
-    data = pd.read_parquet(source, engine='pyarrow')
-
-    if "Date" in data.columns:
-        data["Date"] = pd.to_datetime(data["Date"], errors="coerce")
-
-    return data
-
-
 try:
 
-    df = load_data()
+    df = load_clustered_data()
 
 except Exception as error:
 
@@ -94,7 +82,7 @@ dashboard_filter_keys = [
     "dashboard_arrest", "dashboard_domestic",
 ]
 
-if st.sidebar.button("🔄 Reset All Filters", use_container_width=True):
+if st.sidebar.button("🔄 Reset All Filters", width="stretch"):
     for key in dashboard_filter_keys:
         if key in st.session_state:
             del st.session_state[key]
@@ -138,7 +126,7 @@ selected_domestic = st.sidebar.selectbox(
 # 6. Apply Filters
 # ============================================================
 
-filtered_df = df.copy()
+filtered_df = df
 
 if selected_year:
     filtered_df = filtered_df[filtered_df["Year"].isin(selected_year)]
@@ -271,7 +259,7 @@ fig_crime.update_layout(
 
 st.plotly_chart(
     fig_crime,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -305,7 +293,7 @@ with col1:
 
     st.plotly_chart(
         fig_district,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -332,7 +320,7 @@ with col2:
 
     st.plotly_chart(
         fig_ward,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -369,7 +357,7 @@ with col1:
 
     st.plotly_chart(
         fig_arrest,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -399,7 +387,7 @@ with col2:
 
     st.plotly_chart(
         fig_domestic,
-        use_container_width=True
+        width="stretch"
     )
 
 
@@ -440,7 +428,7 @@ fig_description.update_layout(
 
 st.plotly_chart(
     fig_description,
-    use_container_width=True
+    width="stretch"
 )
 
 
@@ -474,7 +462,7 @@ available_columns = [
 
 st.dataframe(
     filtered_df[available_columns].head(500),
-    use_container_width=True,
+    width="stretch",
     hide_index=True
 )
 
