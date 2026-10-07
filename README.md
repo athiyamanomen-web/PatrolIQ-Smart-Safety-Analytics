@@ -288,6 +288,9 @@ PatrolIQ/
 ├── app.py
 ├── data_loader.py
 ├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
 ├── .gitignore
 │
 ├── pages/
@@ -334,6 +337,43 @@ streamlit run app.py
 
 The application retrieves its deployment datasets from the public Hugging Face dataset repository.
 
+
+## 🐳 Docker Deployment
+
+PatrolIQ also includes containerization support for reproducible local deployment.
+
+### Docker
+
+Build the image from the repository root:
+
+```bash
+docker build -t patroliq .
+```
+
+Run the container:
+
+```bash
+docker run -p 8501:8501 patroliq
+```
+
+Then open the application at `http://localhost:8501`.
+
+### Docker Compose
+
+Alternatively, start PatrolIQ with Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+Stop the container with:
+
+```bash
+docker compose down
+```
+
+The container exposes Streamlit on port **8501** and includes a health check for the Streamlit service. Deployment datasets continue to be retrieved from the public Hugging Face dataset repository, so the large analytical data files do not need to be bundled into the Docker image.
+
 ## 🛠️ Technology Stack
 
 - Python
@@ -347,6 +387,7 @@ The application retrieves its deployment datasets from the public Hugging Face d
 - Git & GitHub
 - Hugging Face Datasets
 - Streamlit Community Cloud
+- Docker & Docker Compose
 
 ## ⚠️ Limitations
 
